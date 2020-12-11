@@ -2,6 +2,8 @@ import scala.collection.immutable.ListMap
 import scala.collection.mutable
 
 object Main extends App {
+    val t0 = System.nanoTime()
+
     def parse_csv(path: String): mutable.ArrayBuffer[Array[String]] = {
         val content = new mutable.ArrayBuffer[Array[String]]()
         val file = io.Source.fromFile(path)
@@ -60,4 +62,7 @@ object Main extends App {
         println(passenger.mkString(", "))
     }
     println()
+
+    val t1 = System.nanoTime()
+    println("Elapsed time: " + (t1 - t0) / 1000000 + "ms")
 }
