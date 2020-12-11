@@ -4,11 +4,22 @@ import scala.collection.mutable
 object Main extends App {
     val t0 = System.nanoTime()
 
-    def parse_csv(path: String): mutable.ArrayBuffer[Array[String]] = {
+    def parse_flights(path: String): mutable.ArrayBuffer[Array[String]] = {
         val content = new mutable.ArrayBuffer[Array[String]]()
         val file = io.Source.fromFile(path)
         for (line <- file.getLines.drop(1)) {
             content += line.split(",")
+        }
+        file.close
+        content
+    }
+
+    def parse_passengers(path: String): mutable.Map[String, Array[String]] = {
+        val content: mutable.Map[String, Array[String]] = mutable.Map()
+        val file = io.Source.fromFile(path)
+        for (line <- file.getLines.drop(1)) {
+            val split_line = line.split(",")
+            content += (split_line(0) -> Array(split_line(1), split_line(2)))
         }
         file.close
         content
@@ -37,15 +48,14 @@ object Main extends App {
             }
         }
         val top100 = ListMap(passenger_count.toSeq.sortWith(_._2 > _._2): _*).take(100)
-        val sorted_passengers = passengers.sortWith((x, y) => x(0).toInt < y(0).toInt)
         top100.foreach {
-            case (id, count) => res += Array(id, count.toString, sorted_passengers(id.toInt - 1)(1), sorted_passengers(id.toInt - 1)(2))
+            case (id, count) => res += Array(id, count.toString, passengers(id)(0), passengers(id)(1))
         }
         res
     }
 
-    val passengers = parse_csv("Flight Data Assignment/passengers.csv")
-    val flights = parse_csv("Flight Data Assignment/flightData.csv")
+    val flights = parse_flights("Flight Data Assignment/flightData.csv")
+    val passengers = parse_passengers("Flight Data Assignment/passengers.csv")
 
     println("Question 1:")
     val res_q1 = question_1()
