@@ -50,6 +50,32 @@ object Main extends App {
         res
     }
 
+    def question_3(): Array[Array[Int]] = {
+        val res = Array.ofDim[Int](passengers.size, 2)
+        for (id <- Range(1, passengers.size + 1, 1)) {
+            val pass_flights = flights.filter(_ (0).toInt == id)
+            var flat_list = Vector[String]()
+            for (flight <- pass_flights) {
+                if (flight(2) != flight(3)) {
+                    flat_list = flat_list :+ flight(2)
+                }
+            }
+            flat_list = flat_list :+ pass_flights.last(3)
+            var indexes = flat_list.zipWithIndex.filter(_._1 == "uk").map(_._2)
+            if (indexes.size == 0) {
+                res(id - 1) = Array(id, flat_list.size)
+            } else {
+                indexes = 0 +: indexes :+ indexes.size
+                var differences = Vector[Int]()
+                for (pair <- indexes.zip(indexes.tail)) {
+                    differences = differences :+ pair._1 + pair._2
+                }
+                res(id - 1) = Array(id, if (differences.max > 1) differences.max - 1 else 0)
+            }
+        }
+        res
+    }
+
     val flights = parse_flights("Flight Data Assignment/flightData.csv")
     val passengers = parse_passengers("Flight Data Assignment/passengers.csv")
 
@@ -65,6 +91,14 @@ object Main extends App {
     val res_q2 = question_2()
     println("Passenger ID, Number of Flights, First name, Last name")
     for (passenger <- res_q2) {
+        println(passenger.mkString(", "))
+    }
+    println()
+
+    println("Question 3 (this one is really slow, don't panic):")
+    val res_q3 = question_3()
+    println("Passenger ID, Longest Run")
+    for (passenger <- res_q3) {
         println(passenger.mkString(", "))
     }
     println()
