@@ -1,11 +1,10 @@
-import scala.collection.immutable.ListMap
-import scala.collection.mutable
+import scala.collection.mutable.{ArrayBuffer, Map}
 
 object Main extends App {
-    val t0 = System.nanoTime()
+    val start = System.nanoTime()
 
-    def parse_flights(path: String): mutable.ArrayBuffer[Array[String]] = {
-        val content = new mutable.ArrayBuffer[Array[String]]()
+    def parse_flights(path: String): ArrayBuffer[Array[String]] = {
+        val content = new ArrayBuffer[Array[String]]()
         val file = io.Source.fromFile(path)
         for (line <- file.getLines.drop(1)) {
             content += line.split(",")
@@ -14,8 +13,8 @@ object Main extends App {
         content
     }
 
-    def parse_passengers(path: String): mutable.Map[Int, Array[String]] = {
-        val content: mutable.Map[Int, Array[String]] = mutable.Map()
+    def parse_passengers(path: String): Map[Int, Array[String]] = {
+        val content: Map[Int, Array[String]] = Map()
         val file = io.Source.fromFile(path)
         for (line <- file.getLines.drop(1)) {
             val split_line = line.split(",")
@@ -25,27 +24,28 @@ object Main extends App {
         content
     }
 
-    def question_1(): mutable.ArrayBuffer[Array[Int]] = {
+    def question_1(): Array[Array[Int]] = {
+        val res = Array.ofDim[Int](12, 2)
         val flight_count = Array.fill(12)(0)
         for (flight <- flights) {
             flight_count(flight(4).split("-")(1).toInt - 1) += 1
         }
-        val res = new mutable.ArrayBuffer[Array[Int]]()
         for (month <- 1 to 12) {
-            res += Array(month, flight_count(month - 1))
+            res(month - 1) = Array(month, flight_count(month - 1))
         }
         res
     }
 
-    def question_2(): mutable.ArrayBuffer[Array[String]] = {
-        val res = new mutable.ArrayBuffer[Array[String]]()
+    def question_2(): Array[Array[String]] = {
+        val res = Array.ofDim[String](100, 4)
         val passenger_count = Array.fill(passengers.size)(0)
         for (flight <- flights) {
             passenger_count(flight(0).toInt - 1) += 1
         }
-        for ((count, index) <- passenger_count.zipWithIndex.sortWith(_._1 > _._1).take(100)) {
-            val id: Int = index.toInt + 1
-            res += Array(id.toString, count.toString, passengers(id)(0), passengers(id)(1))
+        val sorted_passenger_count = passenger_count.zipWithIndex.sortWith(_._1 > _._1).take(100)
+        for (((count, index), counter) <- sorted_passenger_count.zipWithIndex) {
+            val id = index.toInt + 1
+            res(counter) = Array(id.toString, count.toString, passengers(id)(0), passengers(id)(1))
         }
         res
     }
@@ -69,6 +69,6 @@ object Main extends App {
     }
     println()
 
-    val t1 = System.nanoTime()
-    println("Elapsed time: " + (t1 - t0) / 1000000 + "ms")
+    var end = System.nanoTime()
+    println("Elapsed time: " + (end - start) / 1000000 + "ms")
 }
