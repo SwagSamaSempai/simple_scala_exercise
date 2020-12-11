@@ -14,12 +14,12 @@ object Main extends App {
         content
     }
 
-    def parse_passengers(path: String): mutable.Map[String, Array[String]] = {
-        val content: mutable.Map[String, Array[String]] = mutable.Map()
+    def parse_passengers(path: String): mutable.Map[Int, Array[String]] = {
+        val content: mutable.Map[Int, Array[String]] = mutable.Map()
         val file = io.Source.fromFile(path)
         for (line <- file.getLines.drop(1)) {
             val split_line = line.split(",")
-            content += (split_line(0) -> Array(split_line(1), split_line(2)))
+            content += (split_line(0).toInt -> Array(split_line(1), split_line(2)))
         }
         file.close
         content
@@ -39,17 +39,13 @@ object Main extends App {
 
     def question_2(): mutable.ArrayBuffer[Array[String]] = {
         val res = new mutable.ArrayBuffer[Array[String]]()
-        val passenger_count: mutable.Map[String, Int] = mutable.Map()
+        val passenger_count = Array.fill(passengers.size)(0)
         for (flight <- flights) {
-            if (passenger_count.contains(flight(0))) {
-                passenger_count(flight(0)) += 1
-            } else {
-                passenger_count += (flight(0) -> 1)
-            }
+            passenger_count(flight(0).toInt - 1) += 1
         }
-        val top100 = ListMap(passenger_count.toSeq.sortWith(_._2 > _._2): _*).take(100)
-        top100.foreach {
-            case (id, count) => res += Array(id, count.toString, passengers(id)(0), passengers(id)(1))
+        for ((count, index) <- passenger_count.zipWithIndex.sortWith(_._1 > _._1).take(100)) {
+            val id: Int = index.toInt + 1
+            res += Array(id.toString, count.toString, passengers(id)(0), passengers(id)(1))
         }
         res
     }
