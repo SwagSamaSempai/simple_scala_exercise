@@ -118,11 +118,11 @@ object Main extends App {
             if (uk_indices.isEmpty) { // The passenger hasn't been to the UK, take the number of countries
                 res(id - 1) = Array(id, flat_list.size)
             } else { // The passenger has been to the UK, find out the longest travel chain
-                uk_indices = 0 +: uk_indices :+ uk_indices.size // To calculate first and last differences
+                uk_indices = -1 +: uk_indices :+ flat_list.size // To calculate first and last differences
                 var differences = Vector[Int]()
                 // Zip with tail of list to calculate differences between consecutive numbers
                 for (pair <- uk_indices.zip(uk_indices.tail)) {
-                    differences = differences :+ pair._1 + pair._2
+                    differences = differences :+ pair._2 - pair._1
                 }
                 res(id - 1) = Array(id, if (differences.max > 1) differences.max - 1 else 0)
             }
