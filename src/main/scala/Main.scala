@@ -52,8 +52,20 @@ object Main extends App {
 
     def question_3(): Array[Array[Int]] = {
         val res = Array.ofDim[Int](passengers.size, 2)
+        val sorted_flights = flights.sortWith(_ (0).toInt < _ (0).toInt)
+        var ids = Vector[Int]()
+        for (flight <- sorted_flights) {
+            ids = ids :+ flight(0).toInt
+        }
+        var current_index = 0
+        var next_index = 0
         for (id <- Range(1, passengers.size + 1, 1)) {
-            val pass_flights = flights.filter(_ (0).toInt == id)
+            next_index = ids.indexOf(id + 1)
+            if (next_index == -1) {
+                next_index = flights.size
+            }
+            val pass_flights = sorted_flights.slice(current_index, next_index)
+            current_index = next_index
             var flat_list = Vector[String]()
             for (flight <- pass_flights) {
                 if (flight(2) != flight(3)) {
@@ -61,13 +73,13 @@ object Main extends App {
                 }
             }
             flat_list = flat_list :+ pass_flights.last(3)
-            var indexes = flat_list.zipWithIndex.filter(_._1 == "uk").map(_._2)
-            if (indexes.size == 0) {
+            var uk_indices = flat_list.zipWithIndex.filter(_._1 == "uk").map(_._2)
+            if (uk_indices.size == 0) {
                 res(id - 1) = Array(id, flat_list.size)
             } else {
-                indexes = 0 +: indexes :+ indexes.size
+                uk_indices = 0 +: uk_indices :+ uk_indices.size
                 var differences = Vector[Int]()
-                for (pair <- indexes.zip(indexes.tail)) {
+                for (pair <- uk_indices.zip(uk_indices.tail)) {
                     differences = differences :+ pair._1 + pair._2
                 }
                 res(id - 1) = Array(id, if (differences.max > 1) differences.max - 1 else 0)
@@ -95,7 +107,7 @@ object Main extends App {
     }
     println()
 
-    println("Question 3 (this one is really slow, don't panic):")
+    println("Question 3:")
     val res_q3 = question_3()
     println("Passenger ID, Longest Run")
     for (passenger <- res_q3) {
