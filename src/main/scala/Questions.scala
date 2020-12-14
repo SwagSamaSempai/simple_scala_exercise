@@ -18,10 +18,13 @@ object Questions {
 
 class Questions(flights_path: String = "Flight Data Assignment/flightData.csv",
                 passengers_path: String = "Flight Data Assignment/passengers.csv",
-                N: Int = 3, from: String = "2017-01-01", to: String = "2017-12-31") {
+                minimum: Int = 3, from_date: String = "2017-01-01", to_date: String = "2017-12-31") {
 
-    var flights: Seq[Vector[String]] = Questions.parse_csv(flights_path)
-    var passengers: Seq[Vector[String]] = Questions.parse_csv(passengers_path)
+    val flights: Vector[Vector[String]] = Questions.parse_csv(flights_path)
+    val passengers: Vector[Vector[String]] = Questions.parse_csv(passengers_path).sortBy(_ (0).toInt)
+    var N: Int = minimum
+    var from: String = from_date
+    var to: String = to_date
 
     /** Returns the total number of flights for each month.
      * For each month, the format is:
@@ -30,11 +33,11 @@ class Questions(flights_path: String = "Flight Data Assignment/flightData.csv",
      *
      * @return IndexedSeq[Vector[Int]]
      */
-    def question_1(): Seq[Array[Int]] = {
+    def question_1(): Vector[Vector[Int]] = {
         val flight_count = Array.fill(12)(0) // One row per month
         // Increment count for each flight that flew during the right month
         flights.foreach(flight => flight_count(flight(4).split("-")(1).toInt - 1) += 1)
-        (1 to 12).map(month => Array(month, flight_count(month - 1)))
+        (1 to 12).map(month => Vector(month, flight_count(month - 1))).toVector
     }
 
     /** Returns the names of the 100 most frequent flyers.
@@ -44,11 +47,11 @@ class Questions(flights_path: String = "Flight Data Assignment/flightData.csv",
      *
      * @return Array[Vector[String]]
      */
-    def question_2(): Array[Vector[String]] = {
+    def question_2(): Vector[Vector[String]] = {
         val passenger_count = Array.fill(passengers.size)(0)
         flights.foreach(flight => passenger_count(flight(0).toInt - 1) += 1)
         // First zipWithIndex to keep original indices (thus IDs), then sort by count, then take top 100
-        val sorted_passenger_count = passenger_count.zipWithIndex.sortWith(_._1 > _._1).take(100)
+        val sorted_passenger_count = passenger_count.zipWithIndex.sortWith(_._1 > _._1).take(100).toVector
         // Build the desired return vector for each passenger by getting their First name and Last name
         sorted_passenger_count.map(passenger => {
             val index = passenger._2
@@ -65,7 +68,7 @@ class Questions(flights_path: String = "Flight Data Assignment/flightData.csv",
      *
      * @return IndexedSeq[Vector[Int]]
      */
-    def question_3(): Seq[Vector[Int]] = {
+    def question_3(): Vector[Vector[Int]] = {
         // Sort the flights by passenger IDs
         val sorted_flights = flights.sortWith(_ (0).toInt < _ (0).toInt)
         // Create a separate Vector to hold flight IDs for indexing
@@ -94,7 +97,7 @@ class Questions(flights_path: String = "Flight Data Assignment/flightData.csv",
                 val diffs = adjusted_uk_indices.zip(adjusted_uk_indices.tail).map(pair => pair._2 - pair._1)
                 if (diffs.max > 1) diffs.max - 1 else 0
             })
-        })
+        }).toVector
     }
 
     /** Returns the passengers who have been on more than N flights together within the range (from,to).
@@ -104,7 +107,7 @@ class Questions(flights_path: String = "Flight Data Assignment/flightData.csv",
      *
      * @return Set[Vector[Any]]: Set[Vector[Int, Int, Int, String, String]]
      */
-    def question_4_and_5(): Set[Vector[Any]] = {
+    def question_4_and_5(): Vector[Vector[Any]] = {
         // Take only the time range specified, then sort by flight ID
         val sorted_flights = flights.filter(
             flight => from <= flight(4) && flight(4) <= to).sortWith(_ (1).toInt < _ (1).toInt)
@@ -151,7 +154,7 @@ class Questions(flights_path: String = "Flight Data Assignment/flightData.csv",
         often_together.map(pair => {
             // Sort the dates to easily get the first and last flight dates
             val sorted_dates = together(pair).tail.sorted
-            Vector(pair._1, pair._2, together(pair).head, sorted_dates.head, sorted_dates.last)
-        })
+            Vector(pair._1, pair._2, together(pair).head.toInt, sorted_dates.head, sorted_dates.last)
+        }).toVector
     }
 }

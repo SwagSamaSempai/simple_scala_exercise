@@ -21,3 +21,5 @@ The argument are, in order:
 - (Questions 4 and 5) Minimum number of flights together
 - (Questions 4 and 5) Starting date
 - (Questions 4 and 5) Ending date
+
+## Notes
