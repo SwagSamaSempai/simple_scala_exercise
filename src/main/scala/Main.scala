@@ -1,3 +1,4 @@
+import scala.collection.immutable.Queue
 import scala.collection.mutable
 
 object Main extends App {
@@ -72,7 +73,8 @@ object Main extends App {
         (1 to nbr_passengers).map(id => {
             next_index = ids.indexOf(id + 1) // Look up the first index of the next passenger
             if (next_index == -1) next_index = ids.size // For the last passenger
-            val pass_flights = sorted_flights.slice(current_index, next_index) // Take only for current passenger
+            // Take flights only for current passenger
+            val pass_flights = sorted_flights.slice(current_index, next_index)
             current_index = next_index
             // First flatten the matrix, then remove adjacent duplicates
             val flat_list = pass_flights.flatten(pass => Vector(pass(2), pass(3))).foldRight(List[String]())(
@@ -92,53 +94,78 @@ object Main extends App {
         })
     }
 
-    def question_4(flights: Vector[Vector[String]]) = {
-        val res = mutable.ArrayBuffer[Array[Int]]()
-        // Sort the flights by flight ID
-        val sorted_flights = flights.sortWith(_ (1).toInt < _ (1).toInt)
+    /** Returns the passengers who have been on more than N flights together within the range (from,to).
+     * For each passenger pair, the format is:
+     *
+     * Passenger 1 ID, Passenger 2 ID, Number of flights together, From, To
+     *
+     * @param flights The flight's records
+     * @param N       Minimum number of flights together
+     * @param from    Starting date
+     * @param to      Ending date
+     * @return Set[Vector[Any]]: Set[Vector[Int, Int, Int, String, String]]
+     */
+    def question_4_and_5(flights: Vector[Vector[String]], N: Int, from: String, to: String) = {
+        // Take only the time range specified, then sort by flight ID
+        val sorted_flights = flights.filter(
+            flight => from <= flight(4) && flight(4) <= to).sortWith(_ (1).toInt < _ (1).toInt)
         // Create a separate Vector to hold IDs for indexing
         val ids = sorted_flights.map(flight => flight(1).toInt)
         // current_index is the first index of the current flight, next_index is the first index of the next one
         var current_index = 0
         var next_index = 0
-        val together = mutable.Map[(Int, Int), Int]()
+        val together = mutable.Map[(Int, Int), Queue[String]]() // Any because we need an Int then a Queue
         var often_together = Set[(Int, Int)]()
-        for (id <- ids) {
+        ids.foreach(id => {
             next_index = ids.indexOf(id + 1) // Look up the first index of the next flight
-            if (next_index == -1) { // For the last flight
-                next_index = ids.size
-            }
-            var flight_passengers = Vector[Int]()
-            for (flight <- sorted_flights.slice(current_index, next_index)) { // Take only for current flight
-                flight_passengers = flight_passengers :+ flight(0).toInt
-            }
+            if (next_index == -1) next_index = ids.size // For the last flight
+            // Take passengers only for current flight
+            val flight_passengers = sorted_flights.slice(current_index, next_index).map(flight => (flight(0), flight(4)))
             current_index = next_index
-            for (i <- flight_passengers.indices) {
+            // For each passenger, search flights with passengers with a higher ID (triangular matrix)
+            flight_passengers.indices.foreach(i => {
                 for (j <- i + 1 until flight_passengers.size) {
-                    val pass_1 = flight_passengers(i)
-                    val pass_2 = flight_passengers(j)
+                    val pass_1 = flight_passengers(i) // Simple renaming
+                    val pass_2 = flight_passengers(j) // Simple renaming
                     if (pass_1 != pass_2) {
-                        val pair = if (pass_1 < pass_2) (pass_1, pass_2) else (pass_2, pass_1)
+                        // Extract passenger IDs, and sort them so that (1,2) is the same as (2,1) in the Map
+                        val pair = if (pass_1._1 < pass_2._1) {
+                            (pass_1._1.toInt, pass_2._1.toInt)
+                        } else {
+                            (pass_2._1.toInt, pass_1._1.toInt)
+                        }
+                        // If the passenger pair exists, increment the number of flights together
                         if (together.contains(pair)) {
-                            together(pair) += 1
-                            if (together(pair) >= 12) {
+                            // Increment the head, add the date to the tail
+                            together(pair) = (together(pair).head.toInt + 1).toString +: together(pair).tail :+ pass_1._2
+                            // Only add to the final set if the number of flights together is already >= N
+                            if (together(pair).head.toInt >= N) {
                                 often_together += pair
                             }
-                        } else {
-                            together += (pair -> 1)
+                        } else { // Otherwise, create an entry in the Map
+                            together += (pair -> Queue("1", pass_1._2)) // Could also be pass_2, same flight date
                         }
                     }
                 }
-            }
-        }
-        for (pair <- often_together) {
-            res += Array(pair._1, pair._2, together(pair))
-        }
-        res
+            })
+        })
+        often_together.map(pair => {
+            // Sort the dates to easily get the first and last flight dates
+            val sorted_dates = together(pair).tail.sorted
+            Vector(pair._1, pair._2, together(pair).head, sorted_dates.head, sorted_dates.last)
+        })
     }
 
-    /** Runs all questions while printing their result, and times the whole process. */
-    def run(flights_path: String, passengers_path: String): Unit = {
+    /** Runs all questions while printing their result, and times the whole process.
+     *
+     * @param flights_path    Path to flights CSV
+     * @param passengers_path Path to passengers CSV
+     * @param N               Minimum number of flights together
+     * @param from            Starting date
+     * @param to              Ending date
+     */
+    def run(flights_path: String, passengers_path: String,
+            N: Int = 3, from: String = "2017-01-01", to: String = "2017-12-31"): Unit = {
         val start = System.nanoTime()
         val flights = parse_csv(flights_path)
         val passengers = parse_csv(passengers_path).sortBy(_ (0).toInt)
@@ -164,10 +191,10 @@ object Main extends App {
         }
         println()
 
-        println("Question 4:")
-        println("Passenger 1 ID, Passenger 2 ID, Number of flights together")
-        for (passenger <- question_4(flights).take(20)) {
-            println(passenger.mkString(", "))
+        println("Question 4 and 5:")
+        println("Passenger 1 ID, Passenger 2 ID, Number of flights together, From, To")
+        for (pair <- question_4_and_5(flights, N, from, to).take(20)) {
+            println(pair.mkString(", "))
         }
         println()
 
@@ -175,5 +202,9 @@ object Main extends App {
         println("Elapsed time: " + (end - start) / 1000000 + "ms")
     }
 
-    run("Flight Data Assignment/flightData.csv", "Flight Data Assignment/passengers.csv")
+    run("Flight Data Assignment/flightData.csv",
+        "Flight Data Assignment/passengers.csv",
+        5,
+        "2017-05-01",
+        "2017-08-01")
 }
