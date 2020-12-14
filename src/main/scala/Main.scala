@@ -144,7 +144,7 @@ object Main extends App {
         var next_index = 0
         val together = mutable.Map[(Int, Int), Int]()
         var often_together = Set[(Int, Int)]()
-        for (id <- Array(11, 67)) {
+        for (id <- ids) {
             next_index = ids.indexOf(id + 1) // Look up the first index of the next flight
             if (next_index == -1) { // For the last flight
                 next_index = ids.size
