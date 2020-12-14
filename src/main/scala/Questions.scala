@@ -1,13 +1,7 @@
 import scala.collection.immutable.Queue
 import scala.collection.mutable
 
-class Questions(flights_path: String = "Flight Data Assignment/flightData.csv",
-                passengers_path: String = "Flight Data Assignment/passengers.csv",
-                N: Int = 3, from: String = "2017-01-01", to: String = "2017-12-31") {
-
-    var flights: Seq[Vector[String]] = parse_csv(flights_path)
-    var passengers: Seq[Vector[String]] = parse_csv(passengers_path)
-
+object Questions {
     /** Returns all lines in a given CSV file.
      *
      * @param path CSV file path
@@ -20,6 +14,14 @@ class Questions(flights_path: String = "Flight Data Assignment/flightData.csv",
         file.close
         res // Can't be returned directly because the file has to be closed first
     }
+}
+
+class Questions(flights_path: String = "Flight Data Assignment/flightData.csv",
+                passengers_path: String = "Flight Data Assignment/passengers.csv",
+                N: Int = 3, from: String = "2017-01-01", to: String = "2017-12-31") {
+
+    var flights: Seq[Vector[String]] = Questions.parse_csv(flights_path)
+    var passengers: Seq[Vector[String]] = Questions.parse_csv(passengers_path)
 
     /** Returns the total number of flights for each month.
      * For each month, the format is:
