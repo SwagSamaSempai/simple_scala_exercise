@@ -81,6 +81,8 @@ class Tests extends FunSuite with BeforeAndAfter {
     test("Question 4 finds only passengers who have been on more than 3 flights together") {
         val computed_values = questions.question_4_and_5()
         assert(3 <= computed_values.map(pair => pair(2).toString).min.toInt)
+        assert("2017-01-01" <= computed_values.map(pair => pair(3).toString).min)
+        assert("2017-12-31" >= computed_values.map(pair => pair(4).toString).min)
     }
 
     test("Question 5 finds only passengers who have been on more than N flights together in (from,to)") {
