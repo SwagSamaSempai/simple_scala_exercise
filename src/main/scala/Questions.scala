@@ -1,5 +1,6 @@
 import scala.collection.immutable.Queue
 import scala.collection.mutable
+import scala.io.Source.fromFile
 
 object Questions {
     /** Returns all lines in a given CSV file.
@@ -8,7 +9,7 @@ object Questions {
      * @return Vector[Vector[String]]
      */
     def parse_csv(path: String): Vector[Vector[String]] = {
-        val file = io.Source.fromFile(path)
+        val file = fromFile(path)
         val lines = file.getLines.drop(1)
         val res = lines.map(line => line.split(",").toVector).toVector
         file.close
