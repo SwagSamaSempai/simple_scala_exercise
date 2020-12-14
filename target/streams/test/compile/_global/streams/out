@@ -1,0 +1,7 @@
+[0m[[0m[31merror[0m] [0m[0mC:\Users\Banana\Documents\Git\Quantexa-Ex\src\test\scala\TestQuestion1.scala:3:39: type FunSuite is not a member of package org.scalatest[0m
+[0m[[0m[31merror[0m] [0m[0mclass TestQuestion1 extends scalatest.FunSuite {[0m
+[0m[[0m[31merror[0m] [0m[0m                                      ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Users\Banana\Documents\Git\Quantexa-Ex\src\test\scala\TestQuestion1.scala:4:5: not found: value test[0m
+[0m[[0m[31merror[0m] [0m[0m    test("CubeCalculator.cube") {[0m
+[0m[[0m[31merror[0m] [0m[0m    ^[0m
+[0m[[0m[31merror[0m] [0m[0mtwo errors found[0m
