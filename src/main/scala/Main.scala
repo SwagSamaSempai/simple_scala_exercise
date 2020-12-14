@@ -87,7 +87,7 @@ object Main extends App {
      */
     def question_3(flights: mutable.ArrayBuffer[Array[String]], nbr_passengers: Int) = {
         val res = Array.ofDim[Int](nbr_passengers, 2)
-        // Sort the flights by passenger ID
+        // Sort the flights by passenger IDs
         val sorted_flights = flights.sortWith(_ (0).toInt < _ (0).toInt)
         // Create a separate Vector to hold ID for indexing
         var ids = Vector[Int]()
@@ -100,7 +100,7 @@ object Main extends App {
         for (id <- 1 to nbr_passengers) {
             next_index = ids.indexOf(id + 1) // Look up the first index of the next passenger
             if (next_index == -1) { // For the last passenger
-                next_index = flights.size
+                next_index = ids.size
             }
             val pass_flights = sorted_flights.slice(current_index, next_index) // Take only for current passenger
             current_index = next_index
@@ -130,32 +130,91 @@ object Main extends App {
         res
     }
 
+    def question_4(flights: mutable.ArrayBuffer[Array[String]]) = {
+        val res = mutable.ArrayBuffer[Array[Int]]()
+        // Sort the flights by flight ID
+        val sorted_flights = flights.sortWith(_ (1).toInt < _ (1).toInt)
+        // Create a separate Vector to hold IDs for indexing
+        var ids = Vector[Int]()
+        for (flight <- sorted_flights) {
+            ids = ids :+ flight(1).toInt
+        }
+        // current_index is the first index of the current flight, next_index is the first index of the next one
+        var current_index = 0
+        var next_index = 0
+        val together = mutable.Map[(Int, Int), Int]()
+        var often_together = Set[(Int, Int)]()
+        for (id <- Array(11, 67)) {
+            next_index = ids.indexOf(id + 1) // Look up the first index of the next flight
+            if (next_index == -1) { // For the last flight
+                next_index = ids.size
+            }
+            var flight_passengers = Vector[Int]()
+            for (flight <- sorted_flights.slice(current_index, next_index)) { // Take only for current flight
+                flight_passengers = flight_passengers :+ flight(0).toInt
+            }
+            current_index = next_index
+            for (i <- flight_passengers.indices) {
+                for (j <- i + 1 until flight_passengers.size) {
+                    val pass_1 = flight_passengers(i)
+                    val pass_2 = flight_passengers(j)
+                    if (pass_1 != pass_2) {
+                        var pair = (pass_1, pass_2)
+                        if (pair._1 > pair._2) {
+                            pair = pair.swap
+                        }
+                        if (together.contains(pair)) {
+                            together(pair) += 1
+                            if (together(pair) >= 3) {
+                                often_together += pair
+                            }
+                        } else {
+                            together += (pair -> 1)
+                        }
+                    }
+                }
+            }
+        }
+        for (pair <- often_together) {
+            res += Array(pair._1, pair._2, together(pair))
+        }
+        res
+    }
+
     /** Runs all questions while printing their result, and times the whole process. */
     def run(): Unit = {
         val start = System.nanoTime()
         val flights = parse_flights("Flight Data Assignment/flightData.csv")
         val passengers = parse_passengers("Flight Data Assignment/passengers.csv")
 
-        println("Question 1:")
-        val res_q1 = question_1(flights)
-        println("Month, Number of Flights")
-        for (month <- res_q1) {
-            println(month.mkString(", "))
-        }
-        println()
+        //        println("Question 1:")
+        //        val res_q1 = question_1(flights)
+        //        println("Month, Number of Flights")
+        //        for (month <- res_q1) {
+        //            println(month.mkString(", "))
+        //        }
+        //        println()
+        //
+        //        println("Question 2:")
+        //        val res_q2 = question_2(flights, passengers)
+        //        println("Passenger ID, Number of Flights, First name, Last name")
+        //        for (passenger <- res_q2) {
+        //            println(passenger.mkString(", "))
+        //        }
+        //        println()
+        //
+        //        println("Question 3:")
+        //        val res_q3 = question_3(flights, passengers.size)
+        //        println("Passenger ID, Longest Run")
+        //        for (passenger <- res_q3) {
+        //            println(passenger.mkString(", "))
+        //        }
+        //        println()
 
-        println("Question 2:")
-        val res_q2 = question_2(flights, passengers)
-        println("Passenger ID, Number of Flights, First name, Last name")
-        for (passenger <- res_q2) {
-            println(passenger.mkString(", "))
-        }
-        println()
-
-        println("Question 3:")
-        val res_q3 = question_3(flights, passengers.size)
-        println("Passenger ID, Longest Run")
-        for (passenger <- res_q3) {
+        println("Question 4:")
+        val res_q4 = question_4(flights)
+        println("Passenger 1 ID, Passenger 2 ID, Number of flights together")
+        for (passenger <- res_q4) {
             println(passenger.mkString(", "))
         }
         println()
