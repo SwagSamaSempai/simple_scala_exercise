@@ -4,9 +4,19 @@
 
 - Scala 2.12.12
 - Scalatest 3.0.8
-- Spark 3.0.1
+- Spark 3.0.1 (Core and SQL)
 
 ## Run
+
+The argument are, in order:
+
+- Path to flights CSV
+- Path to passengers CSV
+- (Questions 4 and 5) Minimum number of flights together
+- (Questions 4 and 5) Starting date
+- (Questions 4 and 5) Ending date
+
+### SBT
 
 To run the code, simply use the `run` command in sbt. This will run all 4 Questions and print their result in the
 console.
@@ -17,13 +27,13 @@ The arguments all have default values, but if you want to customize them, use th
 run "Flight Data Assignment/flightData.csv" "Flight Data Assignment/passengers.csv" "5" "2017-05-01" "2017-08-01"
 ```
 
-The argument are, in order:
+### Spark
 
-- Path to flights CSV
-- Path to passengers CSV
-- (Questions 4 and 5) Minimum number of flights together
-- (Questions 4 and 5) Starting date
-- (Questions 4 and 5) Ending date
+First use `sbt clean` and `sbt package` to create the `.jar` file. Then run the following command:
+
+```
+%SPARK_HOME%/bin/spark-submit --class "Main" --master local[8] target/scala-2.12/quantexa-exercise_2.12-1.0.jar
+```
 
 ## Test
 
@@ -37,7 +47,7 @@ To test the code, simply use the `test` command in sbt.
   about was if for example the chain was UK -> FR -> US -> FR -> UK -> DE -> UK or even UK -> FR -> FR -> FR -> UK -> DE
   -> UK. The question says 'greatest number of countries' and not 'greatest number of distinct countries', so in doubt I
   figured it could be interesting to know how many times a passenger has _changed_ countries without going to the UK. In
-  that case, the results for the three use cases I discussed would be:
+  that case, the results for the three use cases mentioned above would be:
     - UK -> FR -> US -> CN -> UK -> DE -> UK: 3
     - UK -> FR -> US -> FR -> UK -> DE -> UK: 3
     - UK -> FR -> FR -> FR -> UK -> DE -> UK: 1
