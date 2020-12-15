@@ -2,9 +2,10 @@
 
 ## Dependencies
 
-- Scala 2.12.12
+- AdoptOpenJDK 1.8.0_275 (or any other JDK)
+- sbt 1.4.5
+- Scala 2.13.4
 - Scalatest 3.0.8
-- Spark 3.0.1
 
 ## Run
 
@@ -37,14 +38,13 @@ To test the code, simply use the `test` command in sbt.
   about was if for example the chain was UK -> FR -> US -> FR -> UK -> DE -> UK or even UK -> FR -> FR -> FR -> UK -> DE
   -> UK. The question says 'greatest number of countries' and not 'greatest number of distinct countries', so in doubt I
   figured it could be interesting to know how many times a passenger has _changed_ countries without going to the UK. In
-  that case, the results for the three use cases I discussed would be:
+  that case, the results for the three use cases mentioned above would be:
     - UK -> FR -> US -> CN -> UK -> DE -> UK: 3
     - UK -> FR -> US -> FR -> UK -> DE -> UK: 3
     - UK -> FR -> FR -> FR -> UK -> DE -> UK: 1
-
-  The other interpretations are not difficult to implement from mine.
 - Questions 4 and 5 are merged inside one method, as Question 4 is a specific case of Question 5 where `N = 3`,
   `from = "2017-01-01"`, and `to = "2017-12-31`.
-- Question 4 takes only ~20 seconds to run with `Scala 2.13.4` compared to ~35 seconds with `Scala 2.12.12`, but
-  unfortunately Spark requires at most `Scala 2.12.X`. Also, it takes a much longer time to run after the other 3
-  questions, which is most likely a garbage collector issue.
+- Question 4 takes a much longer time to run after the other 3 questions, which is most likely a garbage collector 
+  issue.
+- Spark is implemented in a separate branch, although Question 4 takes at least more than 40 minutes to run.
+  Question 1 takes about 250ms to run in pure Scala, while using the Spark version takes more than 2.5 seconds.
