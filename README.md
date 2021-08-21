@@ -1,4 +1,4 @@
-# Quantexa Exercise
+# Simple Scala Exercise
 
 ## Dependencies
 
